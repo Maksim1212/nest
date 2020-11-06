@@ -1,17 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-// import PostsModule from './posts/post.module';
-// import UserModule from './users/user.module';
-import PostsController from './posts/posts.controller';
-import PostService from './posts/post.service';
+import PostsModule from './posts/post.module';
+import UserModule from './users/user.module';
+// import PostsController from './posts/posts.controller';
+// import PostService from './posts/post.service';
 import Post from './posts/entities/post';
 import { User } from './users/user.entitie';
 
 @Module({
     imports: [
-        // PostsModule,
-        // UserModule,
         TypeOrmModule.forRoot({
             type: 'mysql',
             host: 'localhost',
@@ -22,9 +20,10 @@ import { User } from './users/user.entitie';
             entities: [Post, User],
             synchronize: true,
         }),
-        TypeOrmModule.forFeature([Post]),
+        PostsModule,
+        UserModule,
     ],
-    controllers: [PostsController],
-    providers: [PostService],
+    // controllers: [PostsController],
+    // providers: [PostService],
 })
 export default class AppModule {}

@@ -24,28 +24,28 @@ export default class PostsController {
     // private readonly permissionChecker: PermissionCheckerInterface,
 
     @Get()
-    async findAll(): Promise<OnePostInterface[]> {
+    async findAll(): Promise<any> {
         return this.postService.findAll();
     }
 
     @Post()
-    async create(@Body() newPost: DeepPartial<CreatePostDto>): Promise<OnePostInterface[]> {
+    async create(@Body() newPost: DeepPartial<CreatePostDto>): Promise<any> {
         await validateOrReject(new CreatePostDto(newPost));
         return this.postService.cretePost(newPost);
     }
 
     @Get('/:id')
-    async findById(@Query('id') id: number): Promise<OnePostInterface> {
+    async findById(@Query('id') id: number): Promise<any> {
         return this.postService.findByPostId(id);
     }
 
     @Get('/user/:id')
-    private async findByUserId(@Query('id') id: number): Promise<OnePostInterface[]> {
+    async findByUserId(@Query('id') id: number): Promise<any> {
         return this.postService.findByUserId(id);
     }
 
     @Put('/update')
-    private async updateById(@Body() updatePost: DeepPartial<UpdatePostDto>, @Res() res: Response): Promise<Response> {
+    async updateById(@Body() updatePost: DeepPartial<UpdatePostDto>, @Res() res: Response): Promise<Response> {
         await validateOrReject(new UpdatePostDto(updatePost));
         // const isAuth = await this.jwtChecker.isAuthJWT(updatePost.accessToken);
         // if (!isAuth) {

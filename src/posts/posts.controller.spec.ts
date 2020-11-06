@@ -1,83 +1,54 @@
 import { Test } from '@nestjs/testing';
-import * as chalk from 'chalk';
+import * as faker from 'faker';
 
-import { TypeOrmModule } from '@nestjs/typeorm';
 import PostsController from './posts.controller';
 import PostService from './post.service';
-import Post from './entities/post';
-import { User } from '../users/user.entitie';
+
+const testPost = {
+    id: faker.random.number(),
+    author_id: faker.random.number(),
+    author_name: faker.name.firstName(),
+    title: faker.name.title(),
+    body: faker.lorem.text(),
+    accessToken:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoxLCJpYXQiOjE2MDQwNTA4ODIsImV4cCI6MTYwNDEzNzI4Mn0.cXIbu_1ZlLFjh5rkyQHspjjb268qOQcxiTBb4c3aJcY',
+};
 
 describe('PostsController', () => {
-    let postsController: PostsController;
-    let postsService: PostService;
+    let controller: PostsController;
 
     beforeEach(async () => {
-        const moduleRef = await Test.createTestingModule({
+        const modRef = await Test.createTestingModule({
             controllers: [PostsController],
-            providers: [PostService],
-            imports: [
-                TypeOrmModule.forRoot({
-                    type: 'mysql',
-                    host: 'localhost',
-                    port: 3306,
-                    username: 'root',
-                    password: 'Bandapixels1!',
-                    database: 'blog2',
-                    entities: [Post, User],
-                    synchronize: true,
-                }),
-                TypeOrmModule.forFeature([Post]),
+            providers: [
+                {
+                    provide: PostService,
+                    useValue: {
+                        findAll: jest.fn(() => [testPost]),
+                        cretePost: jest.fn(() => testPost),
+                        findByPostId: jest.fn(() => testPost),
+                        findByUserId: jest.fn(() => testPost),
+                        updatePostById: jest.fn(() => testPost),
+                    },
+                },
             ],
         }).compile();
-        postsService = moduleRef.get<PostService>(PostService);
-        postsController = moduleRef.get<PostsController>(PostsController);
+        controller = modRef.get(PostsController);
     });
 
-    describe('findAll', () => {
-        it('should return an array of posts objects', async () => {
-            const result = [
-                {
-                    author_id: 1,
-                    author_name: 'Lorem',
-                    title: 'Lorem ipsum',
-                    body: 'Lorem ipsum, lorem ipsum, lorem ipsum',
-                    likes: ['1', '2', '4'],
-                    id: 1,
-                    creation_time: new Date(),
-                },
-            ];
-
-            jest.spyOn(postsService, 'findAll').mockResolvedValueOnce(result);
-
-            expect(await postsController.findAll()).toBe(result);
-        });
+    it('should get the posts', async () => {
+        expect(await controller.findAll()).toEqual([testPost]);
     });
-
-    // describe('findById', () => {
-    //     it('should return one post', async () => {
-    //         const result = {
-    //             author_id: 1,
-    //             author_name: 'Lorem',
-    //             title: 'Lorem ipsum',
-    //             body: 'Lorem ipsum, lorem ipsum, lorem ipsum',
-    //             likes: ['1', '2', '4'],
-    //             id: 1,
-    //             creation_time: new Date(),
-    //         };
-    //
-    //         jest.spyOn(postsService, 'findByPostId').mockResolvedValueOnce(result);
-    //
-    //         expect(await postsController.findById(1)).toBe(result);
-    //     });
-    // });
-
-    // describe('* Testing Maths', () => {
-    //     it('should return a number of 5', () => {
-    //         const x = 5;
-    //         const y = 0;
-    //         const expectedResult = 5;
-    //         expect(x + y).toEqual(expectedResult);
-    //         expect(typeof (x + y)).toBe('number');
-    //     });
-    // });
+    it('should create new post', async () => {
+        expect(await controller.create(testPost)).toEqual(testPost);
+    });
+    it('should get one post by id', async () => {
+        expect(await controller.findById(1)).toEqual(testPost);
+    });
+    it('should get one post by userId', async () => {
+        expect(await controller.findByUserId(1)).toEqual(testPost);
+    });
+    it('should updated post by Id', async () => {
+        expect(await controller.findByUserId(1)).toEqual(testPost);
+    });
 });

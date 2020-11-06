@@ -21,5 +21,5 @@ export default class Post {
     likes: string[];
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    creation_time: Date;
+    creation_time: Date | string;
 }

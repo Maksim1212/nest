@@ -1,4 +1,4 @@
-import { IsJWT, IsNotEmpty, IsNumberString, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsJWT, IsNotEmpty, IsNumber, IsNumberString, IsString, MaxLength, MinLength } from 'class-validator';
 import { DeepPartial } from 'typeorm';
 
 export default class CreatePostDto {
@@ -7,7 +7,7 @@ export default class CreatePostDto {
     }
 
     @IsNotEmpty()
-    @IsNumberString()
+    @IsNumber()
     author_id!: number;
 
     @IsNotEmpty()

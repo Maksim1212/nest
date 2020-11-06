@@ -17,16 +17,16 @@ export default class PostService {
         return this.postsRepository.find();
     }
 
-    cretePost(postData: any): Promise<OnePostInterface[]> {
+    cretePost(postData: any): Promise<Post[]> {
         const post = this.postsRepository.create(postData);
         return this.postsRepository.save(post);
     }
 
-    findByPostId(id: number): Promise<OnePostInterface> {
+    findByPostId(id: number): Promise<Post | undefined> {
         return this.postsRepository.findOne(id);
     }
 
-    findByUserId(id: number): Promise<OnePostInterface[]> {
+    findByUserId(id: number): Promise<Post[]> {
         return this.postsRepository.find({ author_id: id });
     }
 
@@ -38,18 +38,18 @@ export default class PostService {
         return this.postsRepository.delete(id);
     }
 
-    findOrfail(id: number): Promise<OnePostInterface> {
+    findOrfail(id: number): Promise<Post> {
         return this.postsRepository.findOneOrFail(id);
     }
 
-    sortByDate(sortingParametr: any): Promise<GetAllPostsInterface> {
+    sortByDate(sortingParametr: any): Promise<Post[]> {
         return this.postsRepository
             .createQueryBuilder('post')
             .orderBy('creation_time', sortingParametr)
             .getMany();
     }
 
-    sortByLikes(sortingParametr: any): Promise<GetAllPostsInterface> {
+    sortByLikes(sortingParametr: any): Promise<Post[]> {
         return this.postsRepository
             .createQueryBuilder('post')
             .orderBy('likes', sortingParametr)
