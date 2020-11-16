@@ -1,35 +1,62 @@
 import { Test } from '@nestjs/testing';
-import { getModelToken } from '@nestjs/sequelize';
-import { Cat } from './cat.model';
-import { CatsService } from './cats.service';
+import * as faker from 'faker';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
-const testCat = { name: 'Test', age: 5, breed: 'Russian Blue' };
+import Post from './entities/post';
+import PostService from './post.service';
 
-describe('CatsService', () => {
-    let service: CatsService;
+const testPost = {
+    id: faker.random.number(),
+    author_id: faker.random.number(),
+    author_name: faker.name.firstName(),
+    title: faker.name.title(),
+    body: faker.lorem.text(),
+};
+
+const secondTestPost = {
+    id: faker.random.number(),
+    author_id: faker.random.number(),
+    author_name: faker.name.firstName(),
+    title: faker.name.title(),
+    body: faker.lorem.text(),
+};
+
+describe('PostsService', () => {
+    let postService: PostService;
 
     beforeEach(async () => {
         const modRef = await Test.createTestingModule({
             providers: [
-                CatsService,
+                PostService,
                 {
-                    provide: getModelToken(Cat),
+                    provide: getRepositoryToken(Post),
                     useValue: {
-                        findAll: jest.fn(() => [testCat]),
-                        create: jest.fn(() => testCat),
+                        find: jest.fn(() => testPost),
+                        findOne: jest.fn(() => testPost),
+                        // create: jest.fn(() => testPost),
                     },
                 },
             ],
         }).compile();
-        service = modRef.get(CatsService);
+        postService = modRef.get(PostService);
     });
 
-    it('should get the cats', async () => {
-        expect(await service.getCats()).toEqual([testCat]);
+    it('postService should be defined', () => {
+        expect(postService).toBeDefined();
     });
-    it('should add a cat', async () => {
-        expect(
-            await service.addCat({ name: 'Test', age: 5, breed: 'Russian Blue' }),
-        ).toEqual(testCat);
+
+    it('should get the posts', async () => {
+        expect(await postService.findAll()).toEqual(testPost);
     });
+
+    it('should get one post by id', async () => {
+        expect(await postService.findByPostId(1)).toEqual(testPost);
+    });
+
+    it('should get one post by user id', async () => {
+        expect(await postService.findByUserId(1)).toEqual(testPost);
+    });
+    // it('should add a cat', async () => {
+    //     expect(await service.cretePost({ name: 'Test', age: 5, breed: 'Russian Blue' })).toEqual(testCat);
+    // });
 });

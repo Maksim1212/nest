@@ -12,7 +12,7 @@ import DeletePostDto from './dto/delete.post.dto';
 import LikePostDto from './dto/like.post.dto';
 import LikesDataInterface from './interfaces/likes.data.interface';
 import SortPostDto from './dto/sort.post.dto';
-import { OnePostInterface } from './interfaces/post.service.interface';
+// import { OnePostInterface } from './interfaces/post.service.interface';
 
 // const errorMessage = 'wrong token';
 const forbiddenMessage = 'you are do not have permissions to perform this operation';
@@ -45,7 +45,7 @@ export default class PostsController {
     }
 
     @Put('/update')
-    async updateById(@Body() updatePost: DeepPartial<UpdatePostDto>, @Res() res: Response): Promise<Response> {
+    async updateById(@Body() updatePost: DeepPartial<UpdatePostDto>): Promise<any> {
         await validateOrReject(new UpdatePostDto(updatePost));
         // const isAuth = await this.jwtChecker.isAuthJWT(updatePost.accessToken);
         // if (!isAuth) {
@@ -61,13 +61,14 @@ export default class PostsController {
                 body: updatePost.body,
                 title: updatePost.title,
             };
-            await this.postService.updatePostById(updatePost.id, postData);
-            return res.status(200).json({
-                message: 'post updated successfully',
-            });
+            const updated = await this.postService.updatePostById(updatePost.id, postData);
+            // return res.status(200).json({
+            //     message: 'post updated successfully',
+            // });
+            return updated;
         }
-
-        return res.status(403).json(forbiddenMessage);
+        return new Error('forbidden');
+        // return res.status(403).json(forbiddenMessage);
     }
 
     @Delete('/')

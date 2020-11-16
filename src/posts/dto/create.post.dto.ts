@@ -1,13 +1,15 @@
-import { IsJWT, IsNotEmpty, IsNumber, IsNumberString, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsJWT, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 import { DeepPartial } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
 
 export default class CreatePostDto {
     constructor(data: DeepPartial<CreatePostDto>) {
         Object.assign(this, data);
     }
 
+    @ApiProperty({ example: '1', description: 'post author Id' })
     @IsNotEmpty()
-    @IsNumber()
+    // @IsNumber()
     author_id!: number;
 
     @IsNotEmpty()

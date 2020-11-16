@@ -14,6 +14,16 @@ const testPost = {
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoxLCJpYXQiOjE2MDQwNTA4ODIsImV4cCI6MTYwNDEzNzI4Mn0.cXIbu_1ZlLFjh5rkyQHspjjb268qOQcxiTBb4c3aJcY',
 };
 
+const testPost2 = {
+    id: faker.random.number(),
+    author_id: faker.random.number(),
+    author_name: faker.name.firstName(),
+    title: faker.name.title(),
+    body: faker.lorem.text(),
+    accessToken:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoxLCJpYXQiOjE2MDQwNTA4ODIsImV4cCI6MTYwNDEzNzI4Mn0.cXIbu_1ZlLFjh5rkyQHspjjb268qOQcxiTBb4c3aJcY',
+};
+
 describe('PostsController', () => {
     let controller: PostsController;
 
@@ -29,6 +39,7 @@ describe('PostsController', () => {
                         findByPostId: jest.fn(() => testPost),
                         findByUserId: jest.fn(() => testPost),
                         updatePostById: jest.fn(() => testPost),
+                        findOrfail: jest.fn(() => testPost),
                     },
                 },
             ],
@@ -49,6 +60,9 @@ describe('PostsController', () => {
         expect(await controller.findByUserId(1)).toEqual(testPost);
     });
     it('should updated post by Id', async () => {
-        expect(await controller.findByUserId(1)).toEqual(testPost);
+        expect(await controller.updateById(testPost)).toEqual(testPost);
+    });
+    it('should updated post by Id', async () => {
+        expect(await controller.updateById(testPost2)).toEqual(new Error('forbidden'));
     });
 });

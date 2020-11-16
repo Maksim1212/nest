@@ -22,8 +22,8 @@ export default class UserController {
     constructor(private readonly userService: UserService) {}
 
     @Post('/create')
-    private async createUser(@Body() newUser: DeepPartial<CreateUserDto>, @Res() res: Response): Promise<Response> {
-        await validateOrReject(new CreateUserDto(newUser));
+    private async createUser(@Body() newUser: CreateUserDto, @Res() res: Response): Promise<Response> {
+        // await validateOrReject(new CreateUserDto(newUser));
         // eslint-disable-next-line no-param-reassign
         newUser.password = await bcrypt.hash(newUser.password, saltRounds);
         const results = await this.userService.createUser(newUser);
