@@ -1,60 +1,55 @@
 import { Response } from 'express';
 import { Body, Controller, Delete, Get, Post, Put, Query, Res } from '@nestjs/common';
 import { validateOrReject } from 'class-validator';
-import { DeepPartial } from 'typeorm';
+import { DeepPartial, DeleteResult, UpdateResult } from 'typeorm';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import PostService from './post.service';
-// import JWTCheckerInterface from '../interfaces/jwt.checker.interface';
-// import PermissionCheckerInterface from '../interfaces/permission.checker.interface';
 import CreatePostDto from './dto/create.post.dto';
 import UpdatePostDto from './dto/update.post.dto';
 import DeletePostDto from './dto/delete.post.dto';
 import LikePostDto from './dto/like.post.dto';
 import LikesDataInterface from './interfaces/likes.data.interface';
 import SortPostDto from './dto/sort.post.dto';
-// import { OnePostInterface } from './interfaces/post.service.interface';
+import PostEntity from './entities/post';
 
-// const errorMessage = 'wrong token';
 const forbiddenMessage = 'you are do not have permissions to perform this operation';
 
+@ApiTags('Posts')
 @Controller('posts')
 export default class PostsController {
     constructor(private readonly postService: PostService) {}
-    // private readonly jwtChecker: JWTCheckerInterface,
-    // private readonly permissionChecker: PermissionCheckerInterface,
 
     @Get()
-    async findAll(): Promise<any> {
+    @ApiResponse({ type: [PostEntity] })
+    async findAll(): Promise<PostEntity[]> {
         return this.postService.findAll();
     }
 
     @Post()
-    async create(@Body() newPost: DeepPartial<CreatePostDto>): Promise<any> {
+    @ApiResponse({ type: PostEntity })
+    async create(@Body() newPost: CreatePostDto): Promise<PostEntity[]> {
         await validateOrReject(new CreatePostDto(newPost));
         return this.postService.cretePost(newPost);
     }
 
     @Get('/:id')
-    async findById(@Query('id') id: number): Promise<any> {
+    @ApiResponse({ type: PostEntity })
+    async findById(@Query('id') id: number): Promise<PostEntity> {
         return this.postService.findByPostId(id);
     }
 
     @Get('/user/:id')
-    async findByUserId(@Query('id') id: number): Promise<any> {
+    @ApiResponse({ type: [PostEntity] })
+    async findByUserId(@Query('id') id: number): Promise<PostEntity[]> {
         return this.postService.findByUserId(id);
     }
 
     @Put('/update')
-    async updateById(@Body() updatePost: DeepPartial<UpdatePostDto>): Promise<any> {
+    @ApiResponse({ type: [UpdateResult] })
+    async updateById(@Body() updatePost: UpdatePostDto): Promise<UpdateResult | string> {
         await validateOrReject(new UpdatePostDto(updatePost));
-        // const isAuth = await this.jwtChecker.isAuthJWT(updatePost.accessToken);
-        // if (!isAuth) {
-        //     return res.status(401).json(errorMessage);
-        // }
-
         const post = await this.postService.findOrfail(updatePost.id);
-
-        // const isAdmin = await this.permissionChecker.isAdmin(updatePost.author_id);
 
         if (post.author_id === updatePost.author_id) {
             const postData = {
@@ -62,38 +57,25 @@ export default class PostsController {
                 title: updatePost.title,
             };
             const updated = await this.postService.updatePostById(updatePost.id, postData);
-            // return res.status(200).json({
-            //     message: 'post updated successfully',
-            // });
             return updated;
         }
-        return new Error('forbidden');
-        // return res.status(403).json(forbiddenMessage);
+        return forbiddenMessage;
     }
 
     @Delete('/')
-    private async deleteById(@Body() deletePost: DeepPartial<DeletePostDto>, @Res() res: Response): Promise<Response> {
+    @ApiResponse({ type: DeleteResult })
+    private async deleteById(@Body() deletePost: DeletePostDto): Promise<DeleteResult | string> {
         await validateOrReject(new DeletePostDto(deletePost));
-        // const isAuth = await this.jwtChecker.isAuthJWT(deletePost.accessToken);
-        // if (!isAuth) {
-        //     return res.status(401).json(errorMessage);
-        // }
 
         const post = await this.postService.findOrfail(deletePost.id);
-
-        // const isAdmin = await this.permissionChecker.isAdmin(deletePost.user_id);
-
         if (post.author_id === deletePost.user_id) {
-            await this.postService.deletePost(deletePost.id);
-            return res.status(200).json({
-                message: 'post deleted successfully',
-            });
+            return this.postService.deletePost(deletePost.id);
         }
-
-        return res.status(403).json(forbiddenMessage);
+        return forbiddenMessage;
     }
 
     @Put('/like')
+    @ApiResponse({ type: PostEntity })
     private async addLike(@Body() likePost: DeepPartial<LikePostDto>, @Res() res: Response): Promise<Response> {
         await validateOrReject(new LikePostDto(likePost));
         const postData = await this.postService.findOrfail(likePost.post_id);
@@ -117,16 +99,16 @@ export default class PostsController {
     }
 
     @Post('/sort')
-    private async sort(@Body() sortPost: DeepPartial<SortPostDto>, @Res() res: Response): Promise<Response> {
+    @ApiResponse({ type: [PostEntity] })
+    private async sort(@Body() sortPost: SortPostDto): Promise<PostEntity[]> {
         const sortingParametr = sortPost.parametr;
-        const posts = await this.postService.sortByDate(sortingParametr);
-        return res.status(200).json(posts);
+        return this.postService.sortByDate(sortingParametr);
     }
 
     @Post('/likes')
-    private async sortByLikes(@Body() sortPost: DeepPartial<SortPostDto>, @Res() res: Response): Promise<Response> {
+    @ApiResponse({ type: [PostEntity] })
+    private async sortByLikes(@Body() sortPost: SortPostDto): Promise<PostEntity[]> {
         const sortingParametr = sortPost.parametr;
-        const posts = await this.postService.sortByLikes(sortingParametr);
-        return res.status(200).json(posts);
+        return this.postService.sortByLikes(sortingParametr);
     }
 }

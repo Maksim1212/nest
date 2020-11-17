@@ -63,6 +63,8 @@ describe('PostsController', () => {
         expect(await controller.updateById(testPost)).toEqual(testPost);
     });
     it('should updated post by Id', async () => {
-        expect(await controller.updateById(testPost2)).toEqual(new Error('forbidden'));
+        expect(await controller.updateById(testPost2)).toEqual(
+            'you are do not have permissions to perform this operation',
+        );
     });
 });

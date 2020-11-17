@@ -4,7 +4,7 @@ import { DeleteResult, UpdateResult, Repository } from 'typeorm';
 
 import Post from './entities/post';
 // import LikesDataInterface from './interfaces/likes.data.interface';
-import { GetAllPostsInterface, OnePostInterface } from './interfaces/post.service.interface';
+// import { GetAllPostsInterface, OnePostInterface } from './interfaces/post.service.interface';
 
 @Injectable()
 export default class PostService {
